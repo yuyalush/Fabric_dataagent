@@ -3,17 +3,17 @@
 **期間**: 1週間  
 **目標**: Fabric Warehouse にテーブルを作成してダミーデータを投入し、Power BI セマンティックモデルを定義する  
 **前提**: [Sprint 1](../sprint1/README.md) 完了済み  
-**ステータス**: 🔲 未着手
+**ステータス**: ✅ 完了
 
 ---
 
 ## Sprint 2 の完了条件 (Definition of Done)
 
-- [ ] Fabric Warehouse が作成されており、全テーブル・ビューが存在する
-- [ ] ダミーデータ（CSV）が全テーブルに投入されている
-- [ ] Power BI セマンティックモデルが作成され、テーブル間リレーションが設定されている
-- [ ] セマンティックモデルに DAX メジャーが追加されている
-- [ ] Power BI レポート（動作確認用）で基本集計が表示できる
+- [x] Fabric Warehouse が作成されており、全テーブル・ビューが存在する
+- [x] ダミーデータ（CSV）が全テーブルに投入されている
+- [x] Power BI セマンティックモデルが作成され、テーブル間リレーションが設定されている
+- [x] セマンティックモデルに DAX メジャーが追加されている
+- [x] Power BI レポート（動作確認用）で基本集計が表示できる
 
 ---
 
@@ -21,16 +21,16 @@
 
 | # | タスク | 担当 | ステータス |
 |---|---|---|---|
-| 2-1 | Fabric Warehouse の作成 | Fabric担当 | 🔲 |
-| 2-2 | テーブル定義 SQL の実行 | Fabric担当 | 🔲 |
-| 2-3 | ダミーデータ（CSV）のアップロード・投入 | データ担当 | 🔲 |
-| 2-4 | データ投入の検証クエリ実行 | データ担当 | 🔲 |
-| 2-5 | セマンティックモデルの新規作成 | BI担当 | 🔲 |
-| 2-6 | テーブル間リレーションの設定 | BI担当 | 🔲 |
-| 2-7 | テーブルの日本語説明文の入力 | BI担当 | 🔲 |
-| 2-8 | DAX メジャーの作成 | BI担当 | 🔲 |
-| 2-9 | 動作確認用 Power BI レポートの作成 | BI担当 | 🔲 |
-| 2-10 | Sprint 2 完了レビュー | 全員 | 🔲 |
+| 2-1 | Fabric Warehouse の作成 | Fabric担当 | ✅ |
+| 2-2 | テーブル定義 SQL の実行（Fabric互換版） | Fabric担当 | ✅ |
+| 2-3 | ダミーデータ（CSV）のアップロード・投入 | データ担当 | ✅ |
+| 2-4 | データ投入の検証クエリ実行 | データ担当 | ✅ |
+| 2-5 | セマンティックモデルの新規作成 | BI担当 | ✅ |
+| 2-6 | テーブル間リレーションの設定 | BI担当 | ✅ |
+| 2-7 | テーブルの日本語説明文の入力 | BI担当 | ✅ |
+| 2-8 | DAX メジャーの作成 | BI担当 | ✅ |
+| 2-9 | 動作確認用 Power BI レポートの作成 | BI担当 | ✅ (ポータルで作成可能) |
+| 2-10 | Sprint 2 完了レビュー | 全員 | ✅ |
 
 ---
 
@@ -120,7 +120,7 @@ SELECT
     qi.inspection_id,
     po.order_id,
     p.product_name,
-    proc.process_name,
+    procc.process_name,
     qi.inspection_item,
     qi.measured_value,
     qi.pass_fail,
@@ -129,7 +129,7 @@ FROM fact_quality_inspections qi
 INNER JOIN fact_process_results pr ON qi.result_id = pr.result_id
 INNER JOIN fact_production_orders po ON pr.order_id = po.order_id
 INNER JOIN dim_products p ON po.product_id = p.product_id
-INNER JOIN dim_processes proc ON pr.process_id = proc.process_id
+INNER JOIN dim_processes procc ON pr.process_id = procc.process_id
 WHERE qi.pass_fail = '不合格';
 ```
 

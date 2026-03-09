@@ -45,3 +45,4 @@ $RECYCLE.BIN/
 *.temp
 logs/
 tmp/
+*.env

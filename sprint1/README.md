@@ -2,17 +2,17 @@
 
 **期間**: 1週間  
 **目標**: Azure Storage と Fabric Workspace の基本環境を整備し、ダミーデータを手元・クラウドに配置する  
-**ステータス**: 🔲 未着手
+**ステータス**: ✅ 完了
 
 ---
 
 ## Sprint 1 の完了条件 (Definition of Done)
 
-- [ ] Azure Resource Group と Blob Storage アカウントが作成されている
-- [ ] Blob Storage に非構造化データ（仕様書・手順書）がアップロードされている
-- [ ] Fabric ワークスペースが作成されている
-- [ ] Fabric Lakehouse が作成されており、非構造化データが OneLake に同期されている
-- [ ] 構造化ダミーデータ（CSV）が手元で確認できる状態になっている
+- [x] Azure Resource Group と Blob Storage アカウントが作成されている
+- [x] Blob Storage に非構造化データ（仕様書・手順書）がアップロードされている
+- [x] Fabric ワークスペースが作成されている
+- [x] Fabric Lakehouse が作成されており、非構造化データが OneLake に同期されている
+- [x] 構造化ダミーデータ（CSV）が手元で確認できる状態になっている
 
 ---
 
@@ -20,16 +20,16 @@
 
 | # | タスク | 担当 | ステータス |
 |---|---|---|---|
-| 1-1 | Azure CLI / Fabric CLI のインストール確認 | 環境担当 | 🔲 |
-| 1-2 | Azure Resource Group の作成 | 環境担当 | 🔲 |
-| 1-3 | Azure Blob Storage アカウントの作成 | 環境担当 | 🔲 |
-| 1-4 | Blob コンテナの作成とフォルダ構造設定 | 環境担当 | 🔲 |
-| 1-5 | 非構造化データのアップロード（スクリプト実行） | 環境担当 | 🔲 |
-| 1-6 | Fabric ワークスペースの作成（ポータル操作） | Fabric担当 | 🔲 |
-| 1-7 | Fabric Lakehouse の作成 | Fabric担当 | 🔲 |
-| 1-8 | Azure Storage と Fabric OneLake の連携設定 | Fabric担当 | 🔲 |
-| 1-9 | 構造化データ CSV ファイルの内容確認 | データ担当 | 🔲 |
-| 1-10 | Sprint 1 完了レビュー | 全員 | 🔲 |
+| 1-1 | Azure CLI / Fabric CLI のインストール確認 | 環境担当 | ✅ |
+| 1-2 | Azure Resource Group の作成 | 環境担当 | ✅ |
+| 1-3 | Azure Blob Storage アカウントの作成 | 環境担当 | ✅ |
+| 1-4 | Blob コンテナの作成とフォルダ構造設定 | 環境担当 | ✅ |
+| 1-5 | 非構造化データのアップロード（スクリプト実行） | 環境担当 | ✅ |
+| 1-6 | Fabric ワークスペースの作成（fab CLI） | Fabric担当 | ✅ |
+| 1-7 | Fabric Lakehouse の作成 | Fabric担当 | ✅ |
+| 1-8 | 非構造化データの OneLake 直接アップロード | Fabric担当 | ✅ |
+| 1-9 | 構造化データ CSV ファイルの内容確認 | データ担当 | ✅ |
+| 1-10 | Sprint 1 完了レビュー | 全員 | ✅ |
 
 ---
 
