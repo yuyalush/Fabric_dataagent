@@ -1,0 +1,47 @@
+# Fabric Data Agent PoC — .gitignore
+
+# ─── 機密設定ファイル ──────────────────────────────────────────
+# ★ Azure Storage 接続文字列などが含まれるため絶対にコミットしない
+scripts/.env.storage
+scripts/.env.fabric
+.env
+.env.*
+!.env.example
+
+# スクリプトが生成する一時ファイル
+scripts/copy_into_commands.sql
+scripts/verify_data.sql
+
+# ─── OS / エディタ ────────────────────────────────────────────
+# Windows
+Thumbs.db
+ehthumbs.db
+Desktop.ini
+$RECYCLE.BIN/
+
+# macOS
+.DS_Store
+.AppleDouble
+.LSOverride
+
+# VS Code
+.vscode/settings.json
+.vscode/launch.json
+.vscode/*.code-snippets
+!.vscode/extensions.json
+
+# ─── PowerShell ──────────────────────────────────────────────
+*.ps1.bak
+*-backup.ps1
+
+# ─── データファイル（大量のダミーデータなど）────────────────────
+# 必要に応じてコメントアウトを外す
+# data/structured/*.parquet
+# data/structured/*.xlsx
+
+# ─── ログ・一時ファイル ───────────────────────────────────────
+*.log
+*.tmp
+*.temp
+logs/
+tmp/

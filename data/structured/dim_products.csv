@@ -1,0 +1,6 @@
+product_id,product_name,product_category,model_number,voltage_spec_v,current_spec_a,power_rating_kw,weight_kg,release_year,status,notes
+PROD-001,インバータ制御装置 IVC-3000,インバータ,IVC-3000,200-240,30,7.5,8.5,2022,active,三相200V対応・汎用インバータ
+PROD-002,サーボモータードライバー SMD-500,サーボドライバ,SMD-500,200-240,10,2.0,3.2,2023,active,高精度位置制御対応・EtherCAT対応
+PROD-003,PLCユニット PLC-2000,PLC,PLC-2000,24,5,0.12,1.1,2021,active,64点I/O対応・Modbus TCP対応
+PROD-004,インバータ制御装置 IVC-5000,インバータ,IVC-5000,380-440,50,22,15.0,2023,active,三相380V対応・大容量インバータ
+PROD-005,サーボモータードライバー SMD-200,サーボドライバ,SMD-200,100-120,5,0.5,1.8,2022,active,単相100V対応・小型サーボ向け

@@ -1,0 +1,7 @@
+process_id,process_name,process_order,department,standard_time_min,description,required_skill_level,applicable_products
+PROC-001,基板実装,1,製造1課,45,プリント基板への電子部品のハンダ付け・実装作業,中級,PROD-001;PROD-002;PROD-003;PROD-004;PROD-005
+PROC-002,筐体組立,2,製造1課,30,アルミ筐体への基板・電源ユニット・放熱フィンの組み付け,初級,PROD-001;PROD-002;PROD-003;PROD-004;PROD-005
+PROC-003,配線作業,3,製造2課,40,内部配線・コネクタ接続・ケーブルハーネス取り付け,中級,PROD-001;PROD-002;PROD-004
+PROC-004,機能検査,4,品質課,25,通電試験・出力特性測定・保護回路動作確認,上級,PROD-001;PROD-002;PROD-003;PROD-004;PROD-005
+PROC-005,最終検査,5,品質課,20,外観検査・絶縁耐圧試験・ラベル確認・梱包前最終チェック,中級,PROD-001;PROD-002;PROD-003;PROD-004;PROD-005
+PROC-006,梱包,6,出荷課,15,製品の緩衝材梱包・付属品同梱・ラベル貼付・出荷準備,初級,PROD-001;PROD-002;PROD-003;PROD-004;PROD-005
