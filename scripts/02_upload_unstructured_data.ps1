@@ -113,9 +113,39 @@ Storage Blob Data Contributor の付与に失敗しました。
         exit 1
     }
 
-    Write-Success "Storage Blob Data Contributor を付与しました。ロールの反映を待機中 (30秒)..."
-    Start-Sleep -Seconds 30
+    Write-Success "Storage Blob Data Contributor を付与しました。"
 }
+
+# ロールの実効確認（付与直後・反映遅延を考慮して最大 5 分ポーリング）
+Write-Info "Blob Storage への読み書き権限を確認中..."
+$maxWaitSec  = 300
+$intervalSec = 15
+$elapsed     = 0
+$permOk      = $false
+
+while ($elapsed -le $maxWaitSec) {
+    $testOut = az storage blob list `
+        --account-name $storageAccount `
+        --container-name $containerName `
+        --auth-mode login `
+        --output none 2>&1
+    if ($LASTEXITCODE -eq 0) {
+        $permOk = $true
+        break
+    }
+    Write-Info "  まだ反映中... ($elapsed / $maxWaitSec 秒経過、${intervalSec}秒後に再確認)"
+    Start-Sleep -Seconds $intervalSec
+    $elapsed += $intervalSec
+}
+
+if (-not $permOk) {
+    Write-Error @"
+ロールの反映がタイムアウトしました（${maxWaitSec}秒）。
+しばらく時間をおいてから再度スクリプトを実行してください。
+"@
+    exit 1
+}
+Write-Success "権限確認OK（${elapsed}秒で反映）。アップロードを開始します。"
 
 # ─── アップロード対象ディレクトリの確認 ────────────────────────────
 
@@ -148,8 +178,12 @@ foreach ($file in $files) {
 
     Write-Info "アップロード中: $blobName"
 
-    try {
-        # 2>&1 でエラー出力をキャプチャし、$LASTEXITCODE で成否を判定
+    $maxRetries    = 3
+    $retryDelaySec = 20
+    $uploaded      = $false
+    $azOutput      = ""
+
+    for ($attempt = 1; $attempt -le $maxRetries; $attempt++) {
         $azOutput = az storage blob upload `
             --account-name $storageAccount `
             --container-name $containerName `
@@ -159,14 +193,26 @@ foreach ($file in $files) {
             --overwrite true `
             --output none 2>&1
 
-        if ($LASTEXITCODE -ne 0) {
-            throw "az storage blob upload に失敗しました (exit $LASTEXITCODE): $azOutput"
+        if ($LASTEXITCODE -eq 0) {
+            $uploaded = $true
+            break
         }
 
+        # 権限エラーかつリトライ余裕がある場合は待機して再試行
+        $isPermError = "$azOutput" -match "do not have the required permissions"
+        if ($isPermError -and $attempt -lt $maxRetries) {
+            Write-Info "  権限エラー、リトライ ($attempt/$maxRetries)... ${retryDelaySec}秒待機"
+            Start-Sleep -Seconds $retryDelaySec
+        } else {
+            break
+        }
+    }
+
+    if ($uploaded) {
         Write-Success "完了: $blobName"
         $uploadCount++
-    } catch {
-        Write-Warning "失敗: $blobName - $($_.Exception.Message)"
+    } else {
+        Write-Warning "失敗: $blobName - $azOutput"
         $errorCount++
     }
 }
