@@ -1,27 +1,40 @@
 <#
 .SYNOPSIS
-    Azure Storage アカウントのセットアップスクリプト
+    Azure Storage アカウントのセットアップスクリプト（Managed Identity 対応版）
     
 .DESCRIPTION
     製造業 Data Agent PoC 用の Azure Blob Storage を作成します。
     Resource Group、Storage Account、Blob コンテナ、フォルダ構造を作成します。
     
+    【セキュリティ】
+    アカウントキー・接続文字列を一切使用しません。
+    すべての操作は --auth-mode login（Entra ID トークン）で行い、
+    Storage Account の共有キーアクセスも作成後に無効化します。
+    Fabric（Warehouse COPY INTO / Lakehouse ショートカット）は
+    Workspace Managed Identity に Storage Blob Data Reader ロールを付与して統合します。
+    
 .PREREQUISITES
     - Azure CLI (az) がインストール済みであること
     - az login で認証済みであること
     - 適切なサブスクリプション権限があること
+      （Storage Account 作成: Contributor 以上）
+      （RBAC 付与: User Access Administrator または Owner）
+    - Fabric ワークスペースの Managed Identity Object ID が手元にあること
+      （Fabric ポータル → ワークスペース設定 → 「ワークスペース ID」で確認）
 
 .USAGE
     .\scripts\01_setup_azure_storage.ps1
     .\scripts\01_setup_azure_storage.ps1 -ResourceGroup "my-rg" -Location "eastus"
+    .\scripts\01_setup_azure_storage.ps1 -FabricWorkspaceMiObjectId "<object-id>"
 #>
 
 [CmdletBinding()]
 param(
-    [string]$ResourceGroup   = "rg-fabric-dataagent-poc",
-    [string]$Location        = "japaneast",
-    [string]$StorageAccount  = "",       # 空の場合は自動生成
-    [string]$ContainerName   = "manufacturing-docs"
+    [string]$ResourceGroup              = "rg-fabric-dataagent-poc",
+    [string]$Location                   = "japaneast",
+    [string]$StorageAccount             = "",       # 空の場合は自動生成
+    [string]$ContainerName              = "manufacturing-docs",
+    [string]$FabricWorkspaceMiObjectId  = ""        # Fabric Workspace MI の Object ID（RBAC 付与に使用）
 )
 
 Set-StrictMode -Version Latest
@@ -161,43 +174,83 @@ foreach ($folder in $folders) {
 
 Remove-Item $tempKeep.FullName -Force
 
-# ─── 接続情報の出力 ─────────────────────────────────────────────
+# ─── 共有キーアクセスの無効化 ───────────────────────────────────
 
-Write-Step "7/7 接続情報の確認・保存"
+Write-Step "7/8 Storage Account の共有キーアクセスを無効化（Managed Identity のみに制限）"
 
-$storageKey = az storage account keys list `
-    --account-name $StorageAccount `
-    --resource-group $ResourceGroup `
-    --query "[0].value" --output tsv
-
-$connectionString = az storage account show-connection-string `
+az storage account update `
     --name $StorageAccount `
     --resource-group $ResourceGroup `
-    --query "connectionString" --output tsv
+    --allow-shared-key-access false `
+    --output none
 
-# 設定ファイルに保存（git ignore 対象にすること）
+Write-Success "共有キー（アカウントキー / 接続文字列）でのアクセスを無効化しました。"
+Write-Info "以降のすべてのアクセスは Entra ID（--auth-mode login）または Managed Identity で行われます。"
+
+# ─── Fabric Workspace Identity への RBAC 付与 ──────────────────
+
+Write-Step "8/8 接続情報の保存 および Fabric Managed Identity への RBAC 付与"
+
+$storageScope = $(az storage account show `
+    --name $StorageAccount `
+    --resource-group $ResourceGroup `
+    --query "id" --output tsv)
+
+if ($FabricWorkspaceMiObjectId) {
+    Write-Info "Fabric Workspace MI ($FabricWorkspaceMiObjectId) に Storage Blob Data Reader を付与中..."
+
+    az role assignment create `
+        --role "Storage Blob Data Reader" `
+        --assignee-object-id $FabricWorkspaceMiObjectId `
+        --assignee-principal-type ServicePrincipal `
+        --scope $storageScope `
+        --output none
+
+    Write-Success "RBAC 付与が完了しました。"
+    Write-Info "Fabric Warehouse の COPY INTO および Lakehouse ショートカットで Managed Identity が使用できます。"
+} else {
+    Write-Info "FabricWorkspaceMiObjectId が未指定のため、RBAC 付与はスキップしました。"
+    Write-Info "後から付与する場合は scripts/04_assign_rbac.ps1 を実行してください。"
+}
+
+# ─── 設定ファイルの保存（キーレス）───────────────────────────────
+
 $configContent = @"
-# Azure Storage 接続設定 (自動生成 - git に含めないこと)
+# Azure Storage 設定 (自動生成 - git に含めないこと)
 # 生成日時: $(Get-Date -Format "yyyy-MM-dd HH:mm:ss")
+# 認証方式: Managed Identity / az login (接続文字列・アカウントキー不使用)
 
 AZURE_RESOURCE_GROUP=$ResourceGroup
 AZURE_LOCATION=$Location
 AZURE_STORAGE_ACCOUNT=$StorageAccount
 AZURE_CONTAINER_NAME=$ContainerName
-AZURE_STORAGE_CONNECTION_STRING=$connectionString
+AZURE_STORAGE_URL=https://$StorageAccount.blob.core.windows.net
+AZURE_STORAGE_SCOPE=$storageScope
 "@
 
-$configPath = Join-Path $PSScriptRoot "..\scripts\.env.storage"
+$configPath = Join-Path $PSScriptRoot ".env.storage"
 $configContent | Out-File -FilePath $configPath -Encoding UTF8 -Force
 
-Write-Success "接続設定を保存しました: scripts/.env.storage"
-Write-Info "※ .env.storage は機密情報を含むため、git にコミットしないでください。"
+Write-Success "設定を保存しました: scripts/.env.storage（接続文字列・キーは含まれていません）"
 
 Write-Host "`n====================================" -ForegroundColor Green
 Write-Host " Azure Storage セットアップ完了！" -ForegroundColor Green
 Write-Host "====================================" -ForegroundColor Green
-Write-Host "  Storage Account: $StorageAccount"
-Write-Host "  Container      : $ContainerName"
-Write-Host "  URL            : https://$StorageAccount.blob.core.windows.net/$ContainerName"
+Write-Host "  Storage Account    : $StorageAccount"
+Write-Host "  Container          : $ContainerName"
+Write-Host "  URL                : https://$StorageAccount.blob.core.windows.net/$ContainerName"
+Write-Host "  共有キーアクセス  : 無効（Managed Identity / Entra ID のみ）"
+if ($FabricWorkspaceMiObjectId) {
+    Write-Host "  Fabric RBAC       : 付与済み (Storage Blob Data Reader)"
+} else {
+    Write-Host "  Fabric RBAC       : 未付与 → scripts/04_assign_rbac.ps1 を実行してください"
+}
 Write-Host ""
-Write-Host "次のステップ: .\scripts\02_upload_unstructured_data.ps1 を実行してください。"
+Write-Host "次のステップ:"
+Write-Host "  1. .\scripts\02_upload_unstructured_data.ps1 を実行"
+if (-not $FabricWorkspaceMiObjectId) {
+    Write-Host "  2. Fabric ポータルでワークスペース ID を確認後、04_assign_rbac.ps1 を実行"
+    Write-Host "  3. スプリント1 Step 6: Lakehouse ショートカットをワークスペース ID で作成"
+} else {
+    Write-Host "  2. スプリント1 Step 6: Lakehouse ショートカットをワークスペース ID で作成"
+}

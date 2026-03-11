@@ -120,7 +120,7 @@ $env:FABRIC_WAREHOUSE_NAME  = "manufacturing_warehouse"
 
 | スプリント | 状態 | 完了条件 |
 |---|---|---|
-| [Sprint 1](sprint1/README.md): 環境準備 | ✅ 完了 | Azure Storage・Fabric Workspace が設定済み、ダミーデータが手元にある |
+| [Sprint 1](sprint1/README.md): 環境準備 | ✅ 完了 | Azure Storage・Fabric Workspace が設定済み、ダミーデータが手元にある。Storage は Managed Identity（Workspace Identity）でセキュア化済み（アカウントキー無効） |
 | [Sprint 2](sprint2/README.md): データ基盤構築 | ✅ 完了 | Warehouse にテーブルが存在し、セマンティックモデルが Fabric に登録済み |
 | [Sprint 3](sprint3/README.md): Data Agent 構築 | ✅ 完了 | Data Agent に質問して SQL データから正しい回答が返る |
 | [Sprint 4](sprint4/README.md): Copilot 統合 | 🔲 未着手 | M365 Copilot (Teams) から Data Agent 経由で質問・回答できる |

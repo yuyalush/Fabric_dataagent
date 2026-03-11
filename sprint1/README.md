@@ -112,11 +112,21 @@ az storage container create `
 
 ### Step 6: Azure Storage → Fabric OneLake へのショートカット作成
 
+> **認証方式**: このプロジェクトは **Workspace Identity（Managed Identity）** を使用します。  
+> アカウントキー・SAS トークンは使用しません。
+
 1. Lakehouse のファイルセクションで「**ショートカット**」→「**Azure Data Lake Storage Gen2（または Blob Storage）**」を選択
-2. Azure Storage の接続情報を入力：
-   - URL: `https://<storage-account>.blob.core.windows.net`
-   - コンテナ: `manufacturing-docs`
-3. 各フォルダをショートカットとして Lakehouse に追加
+2. 接続情報を入力：
+   - **URL**: `https://<storage-account>.blob.core.windows.net`
+   - **認証の種類**: `組織のアカウント（ワークスペース ID）` または `Workspace Identity` を選択
+   - ※ アカウントキー・SAS・接続文字列は **選択しない**こと
+3. コンテナ `manufacturing-docs` を選択し、ショートカットを Lakehouse のファイルセクションに追加
+
+> **事前確認（ショートカット作成に失敗する場合）**  
+> Fabric ワークスペース設定 →「**ワークスペース ID**」→ Object ID をコピーして以下を実行:  
+> ```powershell
+> .\scripts\04_assign_rbac.ps1 -FabricWorkspaceMiObjectId "<Object ID>"
+> ```
 
 ---
 
@@ -137,7 +147,7 @@ az storage container create `
 | `az login` でブラウザが開かない | ヘッドレス環境 | `az login --use-device-code` を使用 |
 | Storage Account 名が重複エラー | 名前がグローバルで一意である必要あり | ランダムな数字を付与して再試行 |
 | Fabric ライセンスが見つからない | テナントで Fabric が有効でない | IT 管理者に Fabric ライセンスを確認 |
-| Lakehouse ショートカットで認証エラー | マネージド ID or 接続文字列の誤り | 認証方式を「アカウントキー」に変えて試す |
+| Lakehouse ショートカットで認証エラー | Fabric Workspace MI への RBAC ロール未付与 | `04_assign_rbac.ps1` を実行して `Storage Blob Data Reader` ロールを付与。Fabric ポータル → ワークスペース設定 → ワークスペース ID で Object ID を確認後、スクリプトに渡す |
 
 ---
 
