@@ -10,7 +10,8 @@
 | [sprint1/README.md](sprint1/README.md) | Sprint 1: 環境準備・ダミーデータ投入 |
 | [sprint2/README.md](sprint2/README.md) | Sprint 2: Fabric Warehouse 構築・セマンティックモデル定義 |
 | [sprint3/README.md](sprint3/README.md) | Sprint 3: Fabric Data Agent 作成・動作確認 |
-| [sprint4/README.md](sprint4/README.md) | Sprint 4: M365 Copilot 統合・総合テスト |
+| [sprint4/README.md](sprint4/README.md) | Sprint 4: AI Search による非構造化データ検索の統合 |
+| [sprint5/README.md](sprint5/README.md) | Sprint 5: M365 Copilot 統合・総合テスト |
 
 ---
 
@@ -65,8 +66,10 @@ Fabric_dataagent/
 │   └── README.md                     # Sprint 2 作業ガイド
 ├── sprint3/
 │   └── README.md                     # Sprint 3 作業ガイド
-└── sprint4/
-    └── README.md                     # Sprint 4 作業ガイド
+├── sprint4/
+│   └── README.md                     # Sprint 4 作業ガイド
+└── sprint5/
+    └── README.md                     # Sprint 5 作業ガイド
 ```
 
 ---
@@ -123,7 +126,8 @@ $env:FABRIC_WAREHOUSE_NAME  = "manufacturing_warehouse"
 | [Sprint 1](sprint1/README.md): 環境準備 | ✅ 完了 | Azure Storage・Fabric Workspace が設定済み、ダミーデータが手元にある。Storage は Managed Identity（Workspace Identity）でセキュア化済み（アカウントキー無効） |
 | [Sprint 2](sprint2/README.md): データ基盤構築 | ✅ 完了 | Warehouse にテーブルが存在し、セマンティックモデルが Fabric に登録済み |
 | [Sprint 3](sprint3/README.md): Data Agent 構築 | ✅ 完了 | Data Agent に質問して SQL データから正しい回答が返る |
-| [Sprint 4](sprint4/README.md): Copilot 統合 | 🔲 未着手 | M365 Copilot (Teams) から Data Agent 経由で質問・回答できる |
+| [Sprint 4](sprint4/README.md): AI Search 統合 | 🔲 未着手 | AI Search で非構造化データを検索し Data Agent から参照できる |
+| [Sprint 5](sprint5/README.md): Copilot 統合 | 🔲 未着手 | M365 Copilot (Teams) から Data Agent 経由で質問・回答できる |
 
 ---
 

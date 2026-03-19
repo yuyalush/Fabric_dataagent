@@ -140,9 +140,16 @@ Power BI セマンティックモデルに追加する計算メジャーです�
 
 -- 標準時間比率 (%)
 -- 実作業時間 / 標準時間 × 100
+-- ※ RELATED はメジャー内では直接使えないため、AVERAGEX（イテレーター）で行コンテキストを作ってから参照
 標準時間比率_pct = DIVIDE(
-    AVERAGE(fact_process_results[actual_time_min]),
-    RELATED(dim_processes[standard_time_min])
+    AVERAGEX(
+        fact_process_results,
+        fact_process_results[actual_time_min]
+    ),
+    AVERAGEX(
+        fact_process_results,
+        RELATED(dim_processes[standard_time_min])
+    )
 ) * 100
 
 -- 検査合格数

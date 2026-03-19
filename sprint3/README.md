@@ -153,4 +153,4 @@ fact_production_orders テーブルを指します。
 
 ## Sprint 3 完了後の次のステップ
 
-✅ Sprint 3 完了 → [Sprint 4: M365 Copilot 統合](../sprint4/README.md) へ進む
+✅ Sprint 3 完了 → [Sprint 4: AI Search による非構造化データ検索の統合](../sprint4/README.md) へ進む
